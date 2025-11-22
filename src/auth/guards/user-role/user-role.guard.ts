@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import {
   BadRequestException,
   CanActivate,
@@ -9,8 +7,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
-import { AUTH_ERROR_MESSAGES } from 'src/auth/constants';
-import { META_ROLES } from 'src/auth/constants/meta-roles';
+import { AUTH_ERROR_MESSAGES, META_ROLES } from 'src/auth/constants';
 import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
@@ -35,7 +32,6 @@ export class UserRoleGuard implements CanActivate {
     if (!validRoles.includes(req.user.role))
       throw new ForbiddenException(AUTH_ERROR_MESSAGES.VALID_ROLE);
 
-    console.log('pasó..');
     return true;
   }
 }

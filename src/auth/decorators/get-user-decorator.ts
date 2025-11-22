@@ -3,8 +3,8 @@ import {
   ExecutionContext,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { User } from 'src/user/entities/user.entity';
 import { AUTH_ERROR_MESSAGES } from '../constants';
+import { User } from 'src/user/entities/user.entity';
 
 //Decorador de parametro
 export const GetUser = createParamDecorator((data, ctx: ExecutionContext) => {

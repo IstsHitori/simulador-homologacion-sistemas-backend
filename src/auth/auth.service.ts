@@ -1,26 +1,54 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { AUTH_ERROR_MESSAGES } from './constants';
+import { HashAdapter } from 'src/common/interfaces/hash.interface';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { JwtService } from '@nestjs/jwt';
+import { LoginUserDto } from './dto/login-user.dto';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @Inject('HashAdapter')
+    private readonly hasher: HashAdapter,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async signin(loginUserDto: LoginUserDto) {
+    const findUser = await this.userRepository.findOne({
+      where: {
+        userName: loginUserDto.userName,
+      },
+    });
+
+    if (!findUser)
+      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.USER_NOT_FOUND);
+
+    const isValidPassword = await this.hasher.compare(
+      loginUserDto.password,
+      findUser.password,
+    );
+    if (!isValidPassword)
+      throw new BadRequestException(AUTH_ERROR_MESSAGES.PASSWORD_INVALID);
+
+    const token = this.getJwtToken({ id: findUser.id });
+    return { token };
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  getUserProfile({ id, fullName, userName, role }: User) {
+    return { id, fullName, userName, role };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  private getJwtToken(payload: JwtPayload) {
+    return this.jwtService.sign(payload);
   }
 }
