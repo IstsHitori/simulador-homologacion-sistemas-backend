@@ -5,6 +5,7 @@ import { ENV_VALIDATION_SCHEMA } from './config/env.validation';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { CommonModule } from './common/common.module';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { CommonModule } from './common/common.module';
     AuthModule,
     UserModule,
     CommonModule,
+    SeedModule,
   ],
 })
 export class AppModule {}
