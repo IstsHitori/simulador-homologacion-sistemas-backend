@@ -1,11 +1,39 @@
-import { Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { SubjectVersion } from './subject-version.entity';
 
 @Entity('Equivalence')
+@Index(['oldSubjectVersionId', 'newSubjectVersionId'], { unique: true })
 export class Equivalence {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
+  @Column({ type: 'int' })
   oldSubjectVersionId: number;
 
+  @Column({ type: 'int' })
   newSubjectVersionId: number;
+
+  //---Relations---
+  @ManyToOne(
+    () => SubjectVersion,
+    subjectVersion => subjectVersion.oldEquivalences,
+    { nullable: true },
+  )
+  @JoinColumn({ name: 'oldSubjectVersionId' })
+  oldSubjectVersion: SubjectVersion;
+
+  @ManyToOne(
+    () => SubjectVersion,
+    subjectVersion => subjectVersion.newEquivalences,
+    { nullable: true },
+  )
+  @JoinColumn({ name: 'newSubjectVersionId' })
+  newSubjectVersion: SubjectVersion;
 }

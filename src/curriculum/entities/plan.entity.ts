@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { SubjectVersion } from './subject-version.entity';
 
 @Entity('Plan')
 export class Plan {
@@ -13,4 +14,8 @@ export class Plan {
 
   @Column({ type: 'date', nullable: true })
   endDate: Date;
+
+  //---Relations---
+  @OneToMany(() => SubjectVersion, subjectVersion => subjectVersion.plan)
+  subjectVersion: SubjectVersion[];
 }
