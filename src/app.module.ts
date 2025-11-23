@@ -9,6 +9,7 @@ import { SeedModule } from './seed/seed.module';
 import { StudentModule } from './student/student.module';
 import { CurriculumModule } from './curriculum/curriculum.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
+import { HomologationModule } from './homologation/homologation.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { EnrollmentModule } from './enrollment/enrollment.module';
     StudentModule,
     CurriculumModule,
     EnrollmentModule,
+    HomologationModule,
   ],
 })
 export class AppModule {}
