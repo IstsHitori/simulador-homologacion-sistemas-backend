@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Student } from './entities/student.entity';
 import { EnrollmentModule } from 'src/enrollment/enrollment.module';
 import { HomologationModule } from 'src/homologation/homologation.module';
+import { CurriculumModule } from 'src/curriculum/curriculum.module';
 
 @Module({
   controllers: [StudentController],
@@ -13,6 +14,7 @@ import { HomologationModule } from 'src/homologation/homologation.module';
     TypeOrmModule.forFeature([Student]),
     EnrollmentModule,
     HomologationModule,
+    CurriculumModule,
   ],
 })
 export class StudentModule {}
