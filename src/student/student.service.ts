@@ -68,7 +68,7 @@ export class StudentService {
       return {
         message: `Estudiante ${savedStudent.names} creado correctamente`,
         subjectsToHomologate,
-        approvedSubjects: subjectjs,
+        studentApprovedSubject: subjectjs,
       };
     });
   }
@@ -88,9 +88,35 @@ export class StudentService {
     });
     if (!foundStudent)
       throw new NotFoundException(STUDENT_ERROR_MESSAGES.STUDENT_NOT_FOUND);
-    return foundStudent;
+
+    return this.mapStudent(foundStudent);
   }
 
+  private mapStudent(student: Student) {
+    return {
+      id: student.id,
+      identification: student.identification,
+      email: student.email,
+      names: student.names,
+      lastNames: student.lastNames,
+      semester: student.semester,
+      cityResidence: student.cityResidence,
+      address: student.address,
+      telephone: student.telephone,
+      gender: student.gender,
+      createdAt: student.createdAt,
+      updatedAt: student.updatedAt,
+      approvedSubjects: student.studentApprovedSubject.map(approved => ({
+        id: approved.approvedSubjectVersion.id,
+        name: approved.approvedSubjectVersion.name,
+        code: approved.approvedSubjectVersion.code,
+        semester: approved.approvedSubjectVersion.semester,
+        credits: approved.approvedSubjectVersion.credits,
+        plan: approved.approvedSubjectVersion.plan,
+        area: approved.approvedSubjectVersion.area,
+      })),
+    };
+  }
   async update(id: string, updateStudentDto: UpdateStudentWithEnrollmentDto) {
     return this.dataSource.transaction(async manager => {
       const studentRepository = manager.getRepository(Student);
@@ -130,7 +156,11 @@ export class StudentService {
   }
 
   async remove(id: string) {
-    const foundStudent = await this.findOne(id);
+    const foundStudent = await this.studentRepository.findOne({
+      where: { id },
+    });
+    if (!foundStudent)
+      throw new NotFoundException(STUDENT_ERROR_MESSAGES.STUDENT_NOT_FOUND);
     await this.studentRepository.remove(foundStudent);
     return `El estudiante ${foundStudent.names} ha sido eliminado correctamente`;
   }
