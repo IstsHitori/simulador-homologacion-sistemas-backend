@@ -24,7 +24,6 @@ export class Equivalence {
   @ManyToOne(
     () => SubjectVersion,
     subjectVersion => subjectVersion.oldEquivalences,
-    { nullable: true },
   )
   @JoinColumn({ name: 'oldSubjectVersionId' })
   oldSubjectVersion: SubjectVersion;
@@ -32,7 +31,6 @@ export class Equivalence {
   @ManyToOne(
     () => SubjectVersion,
     subjectVersion => subjectVersion.newEquivalences,
-    { nullable: true },
   )
   @JoinColumn({ name: 'newSubjectVersionId' })
   newSubjectVersion: SubjectVersion;
