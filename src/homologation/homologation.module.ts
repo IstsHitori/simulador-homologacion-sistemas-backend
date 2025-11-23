@@ -1,4 +1,8 @@
 import { Module } from '@nestjs/common';
+import { HomologationService } from './homologation.service';
 
-@Module({})
+@Module({
+  providers: [HomologationService],
+  exports: [HomologationService],
+})
 export class HomologationModule {}
