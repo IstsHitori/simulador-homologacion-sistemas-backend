@@ -7,6 +7,8 @@ import { UserModule } from './user/user.module';
 import { CommonModule } from './common/common.module';
 import { SeedModule } from './seed/seed.module';
 import { StudentModule } from './student/student.module';
+import { CurriculumModule } from './curriculum/curriculum.module';
+import { EnrollmentModule } from './enrollment/enrollment.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { StudentModule } from './student/student.module';
     CommonModule,
     SeedModule,
     StudentModule,
+    CurriculumModule,
+    EnrollmentModule,
   ],
 })
 export class AppModule {}

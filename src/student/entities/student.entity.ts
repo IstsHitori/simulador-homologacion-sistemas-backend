@@ -2,10 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { META_GENDERS } from '../constants';
+import { StudentApprovedSubject } from 'src/enrollment/entities/student-approved-subject.entity';
 
 @Entity('Student')
 export class Student {
@@ -41,4 +43,11 @@ export class Student {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  //-----Relations-----
+  @OneToMany(
+    () => StudentApprovedSubject,
+    studentApproved => studentApproved.student,
+  )
+  studentApprovedSubject: StudentApprovedSubject[];
 }
