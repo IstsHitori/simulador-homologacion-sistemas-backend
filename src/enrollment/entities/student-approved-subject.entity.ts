@@ -8,7 +8,9 @@ export class StudentApprovedSubject {
   id: number;
 
   //---Relations---
-  @ManyToOne(() => Student, student => student.studentApprovedSubject)
+  @ManyToOne(() => Student, student => student.studentApprovedSubject, {
+    onDelete: 'CASCADE',
+  })
   student: Student;
 
   @ManyToOne(

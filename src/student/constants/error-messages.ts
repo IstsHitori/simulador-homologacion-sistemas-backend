@@ -36,5 +36,5 @@ export enum VALIDATION_MESSAGES {
 
 export enum STUDENT_ERROR_MESSAGES {
   STUDENT_NOT_FOUND = 'No se encontró el estudiante',
-  STUDENT_ALREADY_EXIST = 'El estudiante ya existe',
+  STUDENT_ALREADY_EXIST = 'Ya existe un estudiante con esta identifación o correo',
 }

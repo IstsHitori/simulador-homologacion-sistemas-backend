@@ -51,6 +51,7 @@ export class Student {
   @OneToMany(
     () => StudentApprovedSubject,
     studentApproved => studentApproved.student,
+    { cascade: ['remove'] },
   )
   studentApprovedSubject: StudentApprovedSubject[];
 }
