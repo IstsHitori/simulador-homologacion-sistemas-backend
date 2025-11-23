@@ -1,4 +1,4 @@
-import { META_AREAS } from './meta-data';
+import { META_AREAS } from 'src/curriculum/constants';
 
 export const OLD_SUBJECT_PLAN_DATA = [
   {

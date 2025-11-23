@@ -1,4 +1,4 @@
-import { META_AREAS } from './meta-data';
+import { META_AREAS } from 'src/curriculum/constants';
 
 export const NEW_SUBJECT_PLAN_DATA = [
   {
@@ -306,6 +306,30 @@ export const NEW_SUBJECT_PLAN_DATA = [
     semester: 5,
     credits: 2,
     area: META_AREAS.INVESTIGATION,
+  },
+  {
+    name: 'Expresión oral y escrita I',
+    semester: 1,
+    credits: 2,
+    area: META_AREAS.COMPLEMENTARY_AND_INSTITUTIONAL,
+  },
+  {
+    name: 'Expresión oral y escrita II',
+    semester: 2,
+    credits: 2,
+    area: META_AREAS.COMPLEMENTARY_AND_INSTITUTIONAL,
+  },
+  {
+    name: 'Electiva Ciencias Administrativas, Económicas y Contables',
+    semester: 4,
+    credits: 2,
+    area: META_AREAS.COMPLEMENTARY_AND_INSTITUTIONAL,
+  },
+  {
+    name: 'Humanidades I',
+    semester: 1,
+    credits: 2,
+    area: META_AREAS.COMPLEMENTARY_AND_INSTITUTIONAL,
   },
   {
     name: 'Ética Profesional',

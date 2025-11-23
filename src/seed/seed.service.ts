@@ -10,12 +10,18 @@ import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { HashAdapter } from 'src/common/interfaces/hash.interface';
-import { Area, Plan, SubjectVersion } from 'src/curriculum/entities';
+import {
+  Area,
+  Equivalence,
+  Plan,
+  SubjectVersion,
+} from 'src/curriculum/entities';
 import { META_AREAS, META_PLANS } from 'src/curriculum/constants/meta-data';
 import {
+  EQUIVALENCE_DATA,
   NEW_SUBJECT_PLAN_DATA,
   OLD_SUBJECT_PLAN_DATA,
-} from 'src/curriculum/constants';
+} from './constants';
 
 @Injectable()
 export class SeedService {
@@ -29,6 +35,8 @@ export class SeedService {
     private readonly areaRepository: Repository<Area>,
     @InjectRepository(SubjectVersion)
     private readonly subjectRepository: Repository<SubjectVersion>,
+    @InjectRepository(Equivalence)
+    private readonly equivalenceRepository: Repository<Equivalence>,
     private readonly configService: ConfigService,
     @Inject('HashAdapter')
     private readonly hasher: HashAdapter,
@@ -74,7 +82,12 @@ export class SeedService {
     const oldSubjectPlan = await this.createOldSubjectPlan();
     const newSubjectPlan = await this.createNewSubjectPlan();
     await this.createAreas();
-    await this.createSubjectsVersion(oldSubjectPlan, newSubjectPlan);
+
+    const allSubjects = await this.createSubjectsVersion(
+      oldSubjectPlan,
+      newSubjectPlan,
+    );
+    await this.createRulesForHomologations(allSubjects);
 
     this.logger.log('PLANES DE ASIGNATURA CREADOS.');
   }
@@ -114,7 +127,7 @@ export class SeedService {
   private async createSubjectsVersion(oldPlan: Plan, newPlan: Plan) {
     const foundAreas = await this.areaRepository.find();
 
-    await Promise.all(
+    const oldSubjects = await Promise.all(
       OLD_SUBJECT_PLAN_DATA.map(async ({ name, semester, credits, area }) => {
         const foundArea = foundAreas.find(
           index => index.name === (area as string),
@@ -133,7 +146,7 @@ export class SeedService {
       }),
     );
 
-    await Promise.all(
+    const newSubjects = await Promise.all(
       NEW_SUBJECT_PLAN_DATA.map(async ({ name, semester, credits, area }) => {
         const foundArea = foundAreas.find(
           index => index.name === (area as string),
@@ -150,6 +163,47 @@ export class SeedService {
           }),
         );
       }),
+    );
+
+    return [...oldSubjects, ...newSubjects];
+  }
+
+  private async createRulesForHomologations(allSubjects: SubjectVersion[]) {
+    this.logger.log('CREANDO REGLAS DE HOMOLOGACIÓN...');
+
+    // 1. Mapear las materias por nombre para búsqueda rápida por nombre
+    const subjectsMap = new Map<string, SubjectVersion>();
+    allSubjects.forEach(sub => subjectsMap.set(sub.name, sub));
+
+    const equivalencesToSave: Equivalence[] = [];
+
+    for (const { oldName, newName } of EQUIVALENCE_DATA) {
+      const oldSubject = subjectsMap.get(oldName);
+      const newSubject = subjectsMap.get(newName);
+
+      if (!oldSubject) {
+        this.logger.warn(
+          `[SKIP] Materia Vieja no encontrada en los datos: ${oldName}`,
+        );
+        continue;
+      }
+      if (!newSubject) {
+        this.logger.warn(
+          `[SKIP] Materia Nueva no encontrada en los datos: ${newName}`,
+        );
+        continue;
+      } // 2. Crear la entidad Equivalence con los IDs
+
+      const equivalenceEntity = this.equivalenceRepository.create({
+        oldSubjectVersionId: oldSubject.id,
+        newSubjectVersionId: newSubject.id,
+      });
+      equivalencesToSave.push(equivalenceEntity);
+    } // 3. Insertar en lote
+
+    await this.equivalenceRepository.save(equivalencesToSave);
+    this.logger.log(
+      `SE CREARON ${equivalencesToSave.length} REGLAS DE HOMOLOGACIÓN.`,
     );
   }
 
