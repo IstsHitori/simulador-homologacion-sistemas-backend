@@ -13,6 +13,7 @@ import { StudentApprovedSubject } from 'src/enrollment/entities/student-approved
 import { StudentApprovedSubjectService } from 'src/enrollment/services/student-approved-subject.service';
 import { STUDENT_ERROR_MESSAGES } from './constants/error-messages';
 import { InjectRepository } from '@nestjs/typeorm';
+import { HomologationService } from 'src/homologation/homologation.service';
 
 @Injectable()
 export class StudentService {
@@ -21,6 +22,7 @@ export class StudentService {
     private readonly studentRepository: Repository<Student>,
     private readonly dataSource: DataSource,
     private readonly studentApprovedSubjectService: StudentApprovedSubjectService,
+    private readonly homologationService: HomologationService,
   ) {}
 
   async createStudentAndEnroll({
@@ -50,7 +52,15 @@ export class StudentService {
         approvedSubjects,
         manager,
       );
-      return `Estudiante ${savedStudent.names} creado correctamente`;
+      //4- Calculamos que asignaturas puede homologar
+      const subjectsToHomologate =
+        await this.homologationService.calculateStudentSubjectToHomologate(
+          approvedSubjects,
+        );
+      return {
+        message: `Estudiante ${savedStudent.names} creado correctamente`,
+        subjectsToHomologate,
+      };
     });
   }
 
