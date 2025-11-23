@@ -68,7 +68,7 @@ export class StudentService {
       return {
         message: `Estudiante ${savedStudent.names} creado correctamente`,
         subjectsToHomologate,
-        studentApprovedSubject: subjectjs,
+        approvedSubjects: subjectjs,
       };
     });
   }
@@ -86,10 +86,20 @@ export class StudentService {
         'studentApprovedSubject.approvedSubjectVersion.area',
       ],
     });
+
     if (!foundStudent)
       throw new NotFoundException(STUDENT_ERROR_MESSAGES.STUDENT_NOT_FOUND);
 
-    return this.mapStudent(foundStudent);
+    const approvedSubjects = foundStudent.studentApprovedSubject.map(s => ({
+      approvedSubjectVersionId: s.approvedSubjectVersion.id,
+    }));
+
+    const subjectsToHomologate =
+      await this.homologationService.calculateStudentSubjectToHomologate(
+        approvedSubjects,
+      );
+
+    return { ...this.mapStudent(foundStudent), subjectsToHomologate };
   }
 
   private mapStudent(student: Student) {
@@ -106,14 +116,14 @@ export class StudentService {
       gender: student.gender,
       createdAt: student.createdAt,
       updatedAt: student.updatedAt,
-      approvedSubjects: student.studentApprovedSubject.map(approved => ({
-        id: approved.approvedSubjectVersion.id,
-        name: approved.approvedSubjectVersion.name,
-        code: approved.approvedSubjectVersion.code,
-        semester: approved.approvedSubjectVersion.semester,
-        credits: approved.approvedSubjectVersion.credits,
-        plan: approved.approvedSubjectVersion.plan,
-        area: approved.approvedSubjectVersion.area,
+      approvedSubjects: student.studentApprovedSubject.map(s => ({
+        id: s.approvedSubjectVersion.id,
+        name: s.approvedSubjectVersion.name,
+        code: s.approvedSubjectVersion.code,
+        semester: s.approvedSubjectVersion.semester,
+        credits: s.approvedSubjectVersion.credits,
+        plan: s.approvedSubjectVersion.plan,
+        area: s.approvedSubjectVersion.area,
       })),
     };
   }
