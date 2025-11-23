@@ -117,6 +117,7 @@ export class StudentService {
       })),
     };
   }
+
   async update(id: string, updateStudentDto: UpdateStudentWithEnrollmentDto) {
     return this.dataSource.transaction(async manager => {
       const studentRepository = manager.getRepository(Student);
@@ -130,6 +131,10 @@ export class StudentService {
       });
       if (!foundStudent)
         throw new NotFoundException(STUDENT_ERROR_MESSAGES.STUDENT_NOT_FOUND);
+
+      // 1.1- Validar que no exista otro estudiante con la misma identificación o email
+      await this.validateFields(id, updateStudentDto, studentRepository);
+
       // 2- Actualizar datos del estudiante si se proporcionan
       if (updateStudentDto.studentData) {
         await studentRepository.update(id, updateStudentDto.studentData);
@@ -153,6 +158,26 @@ export class StudentService {
 
       return `El estudiante ${foundStudent.names} ha sido actualizado`;
     });
+  }
+
+  private async validateFields(
+    id: string,
+    updateStudentDto: UpdateStudentWithEnrollmentDto,
+    studentRepository: Repository<Student>,
+  ) {
+    if (updateStudentDto.studentData) {
+      const duplicateStudent = await studentRepository.findOne({
+        where: [
+          { identification: updateStudentDto.studentData.identification },
+          { email: updateStudentDto.studentData.email },
+        ],
+      });
+      if (duplicateStudent && duplicateStudent.id !== id) {
+        throw new BadRequestException(
+          STUDENT_ERROR_MESSAGES.STUDENT_ALREADY_EXIST,
+        );
+      }
+    }
   }
 
   async remove(id: string) {
