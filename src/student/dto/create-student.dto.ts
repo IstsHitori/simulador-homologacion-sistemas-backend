@@ -1,4 +1,13 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString, Length } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  Length,
+  Max,
+  Min,
+} from 'class-validator';
 import { META_GENDERS } from '../constants';
 import { VALIDATION_MESSAGES } from '../constants/error-messages';
 
@@ -22,6 +31,12 @@ export class CreateStudentDto {
   @IsNotEmpty({ message: VALIDATION_MESSAGES.LASTNAMES_REQUIRED })
   @Length(1, 40, { message: VALIDATION_MESSAGES.LASTNAMES_LENGTH })
   lastNames: string;
+
+  @IsNotEmpty({ message: VALIDATION_MESSAGES.SEMESTER_REQUIRED })
+  @IsNumber({}, { message: VALIDATION_MESSAGES.SEMESTER_NUMBER })
+  @Min(1, { message: VALIDATION_MESSAGES.SEMESTER_MIN })
+  @Max(5, { message: VALIDATION_MESSAGES.SEMESTER_MAX })
+  semester: number;
 
   @IsString({ message: VALIDATION_MESSAGES.CITY_STRING })
   @IsNotEmpty({ message: VALIDATION_MESSAGES.CITY_REQUIRED })

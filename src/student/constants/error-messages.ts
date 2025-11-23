@@ -11,6 +11,10 @@ export enum VALIDATION_MESSAGES {
   LASTNAMES_STRING = 'Los apellidos deben ser una cadena de texto',
   LASTNAMES_REQUIRED = 'Los apellidos son obligatorios',
   LASTNAMES_LENGTH = 'Los apellidos deben tener entre 1 y 40 caracteres',
+  SEMESTER_REQUIRED = 'El semestre es requerido',
+  SEMESTER_NUMBER = 'El semestre debe ser un número',
+  SEMESTER_MIN = 'El semestre debe ser mínimo 1',
+  SEMESTER_MAX = 'El semestre debe ser máximo 5',
   CITY_STRING = 'La ciudad de residencia debe ser una cadena de texto',
   CITY_REQUIRED = 'La ciudad de residencia es obligatoria',
   CITY_LENGTH = 'La ciudad de residencia debe tener entre 1 y 20 caracteres',
@@ -22,4 +26,15 @@ export enum VALIDATION_MESSAGES {
   TELEPHONE_LENGTH = 'El teléfono debe tener entre 1 y 10 caracteres',
   GENDER_VALID = 'El género debe ser un valor válido',
   GENDER_REQUIRED = 'El género es obligatorio',
+  STUDENT_DATA_INCORRECT = 'Hay información incorrecta o faltante en el estudiante',
+  STUDENT_DATA_REQUIRED = 'La información del estudiante es requerida',
+  //Approved
+  APPROVED_SUBJECTS_ID_NUMBER = 'El id de la materia aprovada debe ser un numero',
+  APPROVED_SUBJECTS_ARRAY = 'La lista de materias aprobadas debe ser un array',
+  APPROVED_SUBJECTS_REQUIRED = 'Debe haber al menos una materia aprobada en la lista de materias aprobadas',
+}
+
+export enum STUDENT_ERROR_MESSAGES {
+  STUDENT_NOT_FOUND = 'No se encontró el estudiante',
+  STUDENT_ALREADY_EXIST = 'El estudiante ya existe',
 }

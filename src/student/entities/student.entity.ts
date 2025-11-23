@@ -26,6 +26,9 @@ export class Student {
   @Column({ type: 'varchar', length: 40 })
   lastNames: string;
 
+  @Column({ type: 'int' })
+  semester: number;
+
   @Column({ type: 'varchar', length: 20 })
   cityResidence: string;
 
