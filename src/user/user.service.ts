@@ -35,11 +35,33 @@ export class UserService {
       where: {
         id: Not(userId),
       },
+      select: [
+        'id',
+        'email',
+        'fullName',
+        'userName',
+        'createdAt',
+        'updatedAt',
+        'role',
+        'isActive',
+      ],
     });
   }
 
   async findOne(id: string) {
-    const foundUser = await this.userRepository.findOne({ where: { id } });
+    const foundUser = await this.userRepository.findOne({
+      where: { id },
+      select: [
+        'id',
+        'fullName',
+        'email',
+        'userName',
+        'createdAt',
+        'updatedAt',
+        'role',
+        'isActive',
+      ],
+    });
     if (!foundUser)
       throw new NotFoundException(USER_ERROR_MESSAGES.USER_NOT_FOUND);
     return foundUser;
