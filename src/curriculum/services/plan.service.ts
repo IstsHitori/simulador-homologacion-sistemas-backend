@@ -26,10 +26,12 @@ export class PlanService {
 
     const oldSubjects = await this.subjectVersionRepository.find({
       where: { plan: { name: oldPlan.name } },
+      relations: ['area'],
     });
 
     const newSubjects = await this.subjectVersionRepository.find({
       where: { plan: { name: newPlan.name } },
+      relations: ['area'],
     });
 
     return {
