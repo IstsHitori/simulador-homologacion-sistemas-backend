@@ -11,8 +11,11 @@ import {
 import { StudentService } from './student.service';
 import { UpdateStudentWithEnrollmentDto } from './dto/update-student-with-enrollment.dto';
 import { CreateStudentWithEnrollmentDto } from './dto';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { ROLE } from 'src/user/constants';
 
 @Controller('student')
+@Auth(ROLE.ADMIN, ROLE.NORMAL)
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 

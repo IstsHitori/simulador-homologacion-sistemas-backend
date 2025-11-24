@@ -1,26 +1,82 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadGatewayException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Not, Repository } from 'typeorm';
+import { User } from './entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { HashAdapter } from 'src/common/interfaces/hash.interface';
+import { USER_ERROR_MESSAGES } from './constants';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @Inject('HashAdapter')
+    private readonly hasher: HashAdapter,
+  ) {}
+  async create(createUserDto: CreateUserDto) {
+    await this.userRepository.save(
+      this.userRepository.create({
+        ...createUserDto,
+        password: await this.hasher.hash(createUserDto.password),
+      }),
+    );
+    return 'Usuario creado correctamente';
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll(userId: User['id']) {
+    return await this.userRepository.find({
+      where: {
+        id: Not(userId),
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    const foundUser = await this.userRepository.findOne({ where: { id } });
+    if (!foundUser)
+      throw new NotFoundException(USER_ERROR_MESSAGES.USER_NOT_FOUND);
+    return foundUser;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    if (this.hasEmptyFields(updateUserDto))
+      return 'Usuario actualizado sin novedades';
+    await this.findOne(id);
+    await this.validateDuplicate(id, updateUserDto);
+    await this.userRepository.update(id, updateUserDto);
+    return 'Usuario actualizado correctamente';
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  private async validateDuplicate(id: string, updateUserDto: UpdateUserDto) {
+    if (updateUserDto) {
+      const duplicateUser = await this.userRepository.findOne({
+        where: [
+          { email: updateUserDto.email },
+          { userName: updateUserDto.userName },
+        ],
+      });
+
+      if (duplicateUser && duplicateUser.id !== id)
+        throw new BadGatewayException(
+          USER_ERROR_MESSAGES.USERNAME_OR_EMAIL_IN_USE,
+        );
+    }
+  }
+
+  private hasEmptyFields(updateUserDto: UpdateUserDto) {
+    return Object.values(updateUserDto).length === 0;
+  }
+
+  async remove(id: string) {
+    const foundUser = await this.findOne(id);
+    await this.userRepository.remove(foundUser);
+    return 'Usuario eliminado correctamente';
   }
 }

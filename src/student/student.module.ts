@@ -6,6 +6,7 @@ import { Student } from './entities/student.entity';
 import { EnrollmentModule } from 'src/enrollment/enrollment.module';
 import { HomologationModule } from 'src/homologation/homologation.module';
 import { CurriculumModule } from 'src/curriculum/curriculum.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [StudentController],
@@ -15,6 +16,7 @@ import { CurriculumModule } from 'src/curriculum/curriculum.module';
     EnrollmentModule,
     HomologationModule,
     CurriculumModule,
+    AuthModule,
   ],
 })
 export class StudentModule {}

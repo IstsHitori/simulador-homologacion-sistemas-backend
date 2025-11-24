@@ -15,7 +15,7 @@ export const GetUser = createParamDecorator((data, ctx: ExecutionContext) => {
       AUTH_ERROR_MESSAGES.USER_NOT_FOUND_GUARD,
     );
   if (data) {
-    return { email: req.user.email };
+    return { id: req.user.id };
   }
 
   return req.user;

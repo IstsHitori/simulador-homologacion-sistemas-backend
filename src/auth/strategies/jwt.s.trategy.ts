@@ -26,7 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   //Este metodo se llamará si el JWT no ha expirado y la firma del JWT hace match con el payload
   async validate(payload: JwtPayload): Promise<User> {
     const { id } = payload;
-    const findUser = await this.userRepository.findOne({
+    const foundUser = await this.userRepository.findOne({
       where: {
         id,
       },
@@ -34,11 +34,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         password: false,
       },
     });
-    if (!findUser)
+
+    if (!foundUser)
       throw new UnauthorizedException(AUTH_ERROR_MESSAGES.UNHAUTORIZED);
-    if (!findUser.isActive)
+    if (!foundUser.isActive)
       throw new UnauthorizedException(AUTH_ERROR_MESSAGES.INACTIVATED);
 
-    return findUser;
+    return foundUser;
   }
 }

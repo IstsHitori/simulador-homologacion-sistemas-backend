@@ -1,8 +1,6 @@
 import {
-  IsBoolean,
   IsEmail,
   IsEnum,
-  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -10,12 +8,11 @@ import {
 } from 'class-validator';
 import { ROLE } from '../constants/role';
 import { USER_MESSAGES } from '../constants';
-
 export class CreateUserDto {
   @IsString({ message: USER_MESSAGES.NAME_IS_STRING })
   @MinLength(3, { message: USER_MESSAGES.NAME_MIN_LENGTH })
-  @MaxLength(50, { message: USER_MESSAGES.NAME_MAX_LENGTH })
-  name: string;
+  @MaxLength(40, { message: USER_MESSAGES.NAME_MAX_LENGTH })
+  fullName: string;
 
   @IsString({ message: USER_MESSAGES.USERNAME_IS_STRING })
   @MinLength(4, { message: USER_MESSAGES.USERNAME_MIN_LENGTH })
@@ -36,8 +33,4 @@ export class CreateUserDto {
 
   @IsEnum(ROLE, { message: USER_MESSAGES.ROLE_IS_ENUM })
   role: ROLE;
-
-  @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
 }

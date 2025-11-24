@@ -143,7 +143,7 @@ export class StudentService {
         throw new NotFoundException(STUDENT_ERROR_MESSAGES.STUDENT_NOT_FOUND);
 
       // 1.1- Validar que no exista otro estudiante con la misma identificación o email
-      await this.validateFields(id, updateStudentDto, studentRepository);
+      await this.validateDuplicate(id, updateStudentDto, studentRepository);
 
       // 2- Actualizar datos del estudiante si se proporcionan
       if (updateStudentDto.studentData) {
@@ -170,7 +170,7 @@ export class StudentService {
     });
   }
 
-  private async validateFields(
+  private async validateDuplicate(
     id: string,
     updateStudentDto: UpdateStudentWithEnrollmentDto,
     studentRepository: Repository<Student>,

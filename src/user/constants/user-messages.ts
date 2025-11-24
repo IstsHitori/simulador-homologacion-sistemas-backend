@@ -19,11 +19,6 @@ export enum USER_ERROR_MESSAGES {
   ADMIN_ALREADY_EXIST = 'Ya existe un usuario con Rol de Administrador',
   USER_NOT_FOUND = 'Usuario no encontrado',
   EMAIL_IN_USE = 'Este email ya está en uso',
+  USERNAME_OR_EMAIL_IN_USE = 'El nombre de usuario o email ya está en uso',
   USERNAME_IN_USE = 'Este nombre de usuario ya está en uso',
-}
-
-export enum USER_SUCCES_MESSAGES {
-  USER_CREATED = 'Usuario creado correctamente',
-  USER_UPDATED = 'Usuario actualizado correctamente',
-  USER_DELETED = 'Usuario eliminado correctamente',
 }
