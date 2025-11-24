@@ -7,7 +7,7 @@ import {
   CreateStudentWithEnrollmentDto,
   UpdateStudentWithEnrollmentDto,
 } from './dto';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { Student } from './entities/student.entity';
 import { StudentApprovedSubject } from 'src/enrollment/entities/student-approved-subject.entity';
 import { StudentApprovedSubjectService } from 'src/enrollment/services/student-approved-subject.service';
@@ -135,39 +135,83 @@ export class StudentService {
         StudentApprovedSubject,
       );
 
-      // 1- Verificar que el estudiante existe
+      // Verificar que el estudiante existe
       const foundStudent = await studentRepository.findOne({
         where: { id },
       });
       if (!foundStudent)
         throw new NotFoundException(STUDENT_ERROR_MESSAGES.STUDENT_NOT_FOUND);
 
-      // 1.1- Validar que no exista otro estudiante con la misma identificación o email
+      // Validar duplicados
       await this.validateDuplicate(id, updateStudentDto, studentRepository);
 
-      // 2- Actualizar datos del estudiante si se proporcionan
+      // Actualizar datos del estudiante si se proporcionan
       if (updateStudentDto.studentData) {
         await studentRepository.update(id, updateStudentDto.studentData);
       }
 
-      // 3- Actualizar materias aprobadas si se proporcionan
-      if (
-        updateStudentDto.approvedSubjects &&
-        updateStudentDto.approvedSubjects.length > 0
-      ) {
-        // Eliminar las materias aprobadas anteriores
-        await studentApprovedSubjectRepository.delete({ student: { id } });
+      // Obtener materias a procesar
+      const approvedSubjectsToUse = await this.getApprovedSubjectsForUpdate(
+        updateStudentDto,
+        id,
+        studentApprovedSubjectRepository,
+        manager,
+      );
 
-        // Registrar las nuevas materias aprobadas
-        await this.studentApprovedSubjectService.registerApprovedSubjectsInTransaction(
-          id,
-          updateStudentDto.approvedSubjects,
-          manager,
+      // Calcular homologaciones y obtener detalles
+      const subjectsToHomologate =
+        await this.homologationService.calculateStudentSubjectToHomologate(
+          approvedSubjectsToUse,
         );
-      }
 
-      return `El estudiante ${foundStudent.names} ha sido actualizado`;
+      const approvedSubjects =
+        await this.subjectVersionService.getSubjectVersionsByIds(
+          approvedSubjectsToUse.map(({ approvedSubjectVersionId }) =>
+            approvedSubjectVersionId.toString(),
+          ),
+        );
+
+      return {
+        message: `El estudiante ${foundStudent.names} ha sido actualizado`,
+        subjectsToHomologate,
+        approvedSubjects,
+      };
     });
+  }
+
+  private async getApprovedSubjectsForUpdate(
+    updateStudentDto: UpdateStudentWithEnrollmentDto,
+    studentId: string,
+    studentApprovedSubjectRepository: Repository<StudentApprovedSubject>,
+    manager: EntityManager,
+  ) {
+    if (
+      updateStudentDto.approvedSubjects &&
+      updateStudentDto.approvedSubjects.length > 0
+    ) {
+      // Actualizar materias aprobadas
+      await studentApprovedSubjectRepository.delete({
+        student: { id: studentId },
+      });
+      await this.studentApprovedSubjectService.registerApprovedSubjectsInTransaction(
+        studentId,
+        updateStudentDto.approvedSubjects,
+        manager,
+      );
+      return updateStudentDto.approvedSubjects;
+    }
+
+    // Obtener materias existentes del estudiante
+    const approvedSubjectsStudent = await studentApprovedSubjectRepository.find(
+      {
+        where: { student: { id: studentId } },
+        relations: ['approvedSubjectVersion'],
+      },
+    );
+
+    return approvedSubjectsStudent.map(s => ({
+      approvedSubjectVersionId: s.approvedSubjectVersion.id,
+    }));
   }
 
   private async validateDuplicate(
