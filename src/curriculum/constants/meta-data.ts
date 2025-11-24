@@ -1,4 +1,4 @@
-import { SubjectVersion } from '../entities';
+import { Plan, SubjectVersion } from '../entities';
 
 export enum META_PLANS {
   NEW_SUBJECT_PLAN = 'PLAN DE ASIGNATURA PROPUESTO',
@@ -12,9 +12,11 @@ export enum META_AREAS {
   COMPLEMENTARY_AND_INSTITUTIONAL = 'AREA COMPLEMENTARIA E INSTITUCIONAL',
 }
 
-export interface ISubjectsMapped {
-  oldSubjects: SubjectVersion[];
-  oldSubjectsQuantity: number;
-  newSubjects: SubjectVersion[];
-  newSubjectsQuantity: number;
+export interface PlansMapped {
+  oldPlan: {
+    plan: Plan;
+    subjects: SubjectVersion[];
+    quantity: number;
+  };
+  newPlan: { plan: Plan; subjects: SubjectVersion[]; quantity: number };
 }
