@@ -1,5 +1,5 @@
 import {
-  BadGatewayException,
+  BadRequestException,
   Inject,
   Injectable,
   NotFoundException,
@@ -64,7 +64,7 @@ export class UserService {
       });
 
       if (duplicateUser && duplicateUser.id !== id)
-        throw new BadGatewayException(
+        throw new BadRequestException(
           USER_ERROR_MESSAGES.USERNAME_OR_EMAIL_IN_USE,
         );
     }
