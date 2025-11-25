@@ -15,6 +15,7 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ROLE } from './constants';
 import { GetUser } from 'src/auth/decorators/get-user-decorator';
 import { User } from './entities/user.entity';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 
 @Controller('user')
 @Auth(ROLE.ADMIN)
@@ -40,8 +41,17 @@ export class UserController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
+    @GetUser() user: User,
   ) {
-    return this.userService.update(id, updateUserDto);
+    return this.userService.update(user.id, id, updateUserDto);
+  }
+
+  @Patch('update-password/:id')
+  updateUserPassword(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateUserPassword: UpdateUserPasswordDto,
+  ) {
+    return this.userService.updateUserPassword(id, updateUserPassword);
   }
 
   @Delete(':id')

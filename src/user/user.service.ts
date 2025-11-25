@@ -11,6 +11,7 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HashAdapter } from 'src/common/interfaces/hash.interface';
 import { USER_ERROR_MESSAGES } from './constants';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 
 @Injectable()
 export class UserService {
@@ -20,6 +21,7 @@ export class UserService {
     @Inject('HashAdapter')
     private readonly hasher: HashAdapter,
   ) {}
+
   async create(createUserDto: CreateUserDto) {
     await this.userRepository.save(
       this.userRepository.create({
@@ -67,13 +69,39 @@ export class UserService {
     return foundUser;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(userId: string, id: string, updateUserDto: UpdateUserDto) {
     if (this.hasEmptyFields(updateUserDto))
       return 'Usuario actualizado sin novedades';
-    await this.findOne(id);
+
+    if (updateUserDto.password)
+      throw new BadRequestException(
+        USER_ERROR_MESSAGES.PASSWORD_NOT_VALID_TO_UPDATE,
+      );
+
+    const foundUser = await this.findOne(id);
+    if (foundUser.id === userId)
+      throw new BadRequestException(
+        USER_ERROR_MESSAGES.AUTO_UPDATE_PASSWORD_INVALID,
+      );
+
     await this.validateDuplicate(id, updateUserDto);
     await this.userRepository.update(id, updateUserDto);
     return 'Usuario actualizado correctamente';
+  }
+
+  async updateUserPassword(
+    id: string,
+    updateUserPasswordDto: UpdateUserPasswordDto,
+  ) {
+    const foundUser = await this.findOne(id);
+
+    foundUser.password = await this.hasher.hash(
+      updateUserPasswordDto.newPassword,
+    );
+
+    await this.userRepository.save(foundUser);
+
+    return 'Contraseña del usuario actualizada';
   }
 
   private async validateDuplicate(id: string, updateUserDto: UpdateUserDto) {

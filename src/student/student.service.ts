@@ -65,8 +65,10 @@ export class StudentService {
             approvedSubjectVersionId.toString(),
           ),
         );
+
       return {
         message: `Estudiante ${savedStudent.names} creado correctamente`,
+        student: this.formatStudentToResponse(savedStudent),
         subjectsToHomologate,
         approvedSubjects: subjectjs,
       };
@@ -173,6 +175,7 @@ export class StudentService {
 
       return {
         message: `El estudiante ${foundStudent.names} ha sido actualizado`,
+        student: this.formatStudentToResponse(foundStudent),
         subjectsToHomologate,
         approvedSubjects,
       };
@@ -232,6 +235,12 @@ export class StudentService {
         );
       }
     }
+  }
+
+  private formatStudentToResponse(student: Student) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, updatedAt, createdAt, address, ...restStudent } = student;
+    return restStudent;
   }
 
   async remove(id: string) {

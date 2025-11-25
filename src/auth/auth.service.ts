@@ -61,15 +61,38 @@ export class AuthService {
 
   async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
     if (this.hasEmptyFields(updatePasswordDto))
-      return 'Contraseña actualizada sin novedad';
+      throw new BadRequestException(AUTH_ERROR_MESSAGES.EMPTY_FIELDS);
+    if (!this.passwordMatch(updatePasswordDto))
+      throw new BadRequestException(
+        AUTH_ERROR_MESSAGES.NEW_PASSWORD_AND_CONFIRM_NEW_PASSWORD_MATCH,
+      );
 
-    await this.findUser(id);
+    const foundUserToUpdate = await this.findUser(id);
 
-    updatePasswordDto.password = await this.hasher.hash(
-      updatePasswordDto.password!,
+    const areEqualsPassword = await this.hasher.compare(
+      updatePasswordDto.newPassword!,
+      foundUserToUpdate.password,
     );
 
-    await this.userRepository.update(id, updatePasswordDto);
+    if (areEqualsPassword)
+      throw new BadRequestException(AUTH_ERROR_MESSAGES.PASSWORD_ALREADY_EXIST);
+
+    const isValidPassword = await this.hasher.compare(
+      updatePasswordDto.currentPassword!,
+      foundUserToUpdate.password,
+    );
+    if (!isValidPassword)
+      throw new BadRequestException(
+        AUTH_ERROR_MESSAGES.CURRENT_PASSWORD_INVALID,
+      );
+
+    const newPasswordHashed = await this.hasher.hash(
+      updatePasswordDto.newPassword!,
+    );
+
+    foundUserToUpdate.password = newPasswordHashed;
+
+    await this.userRepository.save(foundUserToUpdate);
 
     return 'Contraseña actualizada correctamente';
   }
@@ -83,6 +106,11 @@ export class AuthService {
 
     if (!foundUser)
       throw new NotFoundException(USER_ERROR_MESSAGES.USER_NOT_FOUND);
+    return foundUser;
+  }
+
+  private passwordMatch(updatePasswordDto: UpdatePasswordDto) {
+    return updatePasswordDto.newPassword === updatePasswordDto.confirmPassword;
   }
 
   private async validateDuplicate(

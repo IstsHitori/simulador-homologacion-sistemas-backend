@@ -9,7 +9,17 @@ export class PasswordDto {
   @Matches(/^(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{6,}$/, {
     message: USER_MESSAGES.PASSWORD_MATCH,
   })
-  password: string;
+  newPassword: string;
+
+  @IsString({ message: USER_MESSAGES.PASSWORD_IS_STRING })
+  @Matches(/^(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{6,}$/, {
+    message: USER_MESSAGES.PASSWORD_MATCH,
+  })
+  confirmPassword: string;
+
+  @IsString({ message: USER_MESSAGES.PASSWORD_IS_STRING })
+  @MaxLength(20, { message: USER_MESSAGES.PASSWORD_MAX_LENGTH })
+  currentPassword: string;
 }
 
 export class UpdatePasswordDto extends PartialType(PasswordDto) {}

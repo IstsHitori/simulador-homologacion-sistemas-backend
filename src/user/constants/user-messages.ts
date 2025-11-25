@@ -21,4 +21,6 @@ export enum USER_ERROR_MESSAGES {
   EMAIL_IN_USE = 'Este email ya está en uso',
   USERNAME_OR_EMAIL_IN_USE = 'El nombre de usuario o email ya está en uso',
   USERNAME_IN_USE = 'Este nombre de usuario ya está en uso',
+  PASSWORD_NOT_VALID_TO_UPDATE = 'Actualización de contraseña no permitida en este endpoint',
+  AUTO_UPDATE_PASSWORD_INVALID = 'No es valido actualizarte la contraseña',
 }
