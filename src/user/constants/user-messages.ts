@@ -23,4 +23,5 @@ export enum USER_ERROR_MESSAGES {
   USERNAME_IN_USE = 'Este nombre de usuario ya está en uso',
   PASSWORD_NOT_VALID_TO_UPDATE = 'Actualización de contraseña no permitida en este endpoint',
   AUTO_UPDATE_PASSWORD_INVALID = 'No es valido actualizarte la contraseña',
+  OTHER_ADMIN_NOT_VALID = 'No está permitido crear otro Administrador',
 }

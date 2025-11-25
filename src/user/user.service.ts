@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
@@ -10,7 +11,7 @@ import { Not, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HashAdapter } from 'src/common/interfaces/hash.interface';
-import { USER_ERROR_MESSAGES } from './constants';
+import { ROLE, USER_ERROR_MESSAGES } from './constants';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 
 @Injectable()
@@ -23,6 +24,18 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    if (createUserDto.role === ROLE.ADMIN)
+      throw new ConflictException(USER_ERROR_MESSAGES.OTHER_ADMIN_NOT_VALID);
+
+    const duplicateUser = await this.userRepository.findOne({
+      where: [
+        { email: createUserDto.email },
+        { userName: createUserDto.userName },
+      ],
+    });
+    if (duplicateUser)
+      throw new BadRequestException(USER_ERROR_MESSAGES.USER_ALREADY_EXIST);
+
     await this.userRepository.save(
       this.userRepository.create({
         ...createUserDto,
