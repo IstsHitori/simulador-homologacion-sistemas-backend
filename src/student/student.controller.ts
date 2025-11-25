@@ -34,6 +34,11 @@ export class StudentController {
     return this.studentService.findOne(id);
   }
 
+  @Get(':id/report')
+  getStudentReport(@Param('id', ParseUUIDPipe) id: string) {
+    return this.studentService.getStudentReport(id);
+  }
+
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,

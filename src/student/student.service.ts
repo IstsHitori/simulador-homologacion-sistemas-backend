@@ -104,6 +104,10 @@ export class StudentService {
     return { ...this.mapStudent(foundStudent), subjectsToHomologate };
   }
 
+  async getStudentReport(id: string) {
+    return await this.findOne(id);
+  }
+
   private mapStudent(student: Student) {
     return {
       id: student.id,

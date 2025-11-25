@@ -5,7 +5,6 @@ import { Equivalence, Plan, SubjectVersion } from 'src/curriculum/entities';
 import { ApprovedSubjecItemtDto } from 'src/student/dto';
 import { In, Repository } from 'typeorm';
 import { HOMOLOGATION_ERROR_MESSAGES } from './constants/error-messages';
-
 @Injectable()
 export class HomologationService {
   constructor(
