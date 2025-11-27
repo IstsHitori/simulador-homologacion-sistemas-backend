@@ -14,7 +14,7 @@ export enum VALIDATION_MESSAGES {
   SEMESTER_REQUIRED = 'El semestre es requerido',
   SEMESTER_NUMBER = 'El semestre debe ser un número',
   SEMESTER_MIN = 'El semestre debe ser mínimo 1',
-  SEMESTER_MAX = 'El semestre debe ser máximo 5',
+  SEMESTER_MAX = 'El semestre debe ser máximo 10',
   CITY_STRING = 'La ciudad de residencia debe ser una cadena de texto',
   CITY_REQUIRED = 'La ciudad de residencia es obligatoria',
   CITY_LENGTH = 'La ciudad de residencia debe tener entre 1 y 20 caracteres',

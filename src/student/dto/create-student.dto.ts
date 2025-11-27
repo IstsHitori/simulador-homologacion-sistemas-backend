@@ -35,7 +35,7 @@ export class CreateStudentDto {
   @IsNotEmpty({ message: VALIDATION_MESSAGES.SEMESTER_REQUIRED })
   @IsNumber({}, { message: VALIDATION_MESSAGES.SEMESTER_NUMBER })
   @Min(1, { message: VALIDATION_MESSAGES.SEMESTER_MIN })
-  @Max(5, { message: VALIDATION_MESSAGES.SEMESTER_MAX })
+  @Max(10, { message: VALIDATION_MESSAGES.SEMESTER_MAX })
   semester: number;
 
   @IsString({ message: VALIDATION_MESSAGES.CITY_STRING })
