@@ -30,4 +30,5 @@ export const ENV_VALIDATION_SCHEMA = joi.object({
   ADMIN_EMAIL: joi.string().email().required().max(100),
   //JWT
   JWT_SECRET: joi.string().required(),
+  API_FRONTEND: joi.string().required(),
 });
