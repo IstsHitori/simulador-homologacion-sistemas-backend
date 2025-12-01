@@ -24,7 +24,6 @@ import { HomologationModule } from './homologation/homologation.module';
         const dbPrefix = isProduction ? 'PROD_DB_' : 'DEV_DB_';
 
         return {
-          ssl: isProduction,
           type: 'postgres',
           host: config.get<string>(`${dbPrefix}HOST`),
           port: config.get<number>(`${dbPrefix}PORT`),
