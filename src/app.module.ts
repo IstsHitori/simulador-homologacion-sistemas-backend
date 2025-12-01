@@ -17,17 +17,26 @@ import { HomologationModule } from './homologation/homologation.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get<string>('DB_HOST'),
-        port: config.get<number>('DB_PORT'),
-        database: config.get<string>('DB_NAME'),
-        username: config.get<string>('DB_USERNAME'),
-        password: config.get<string>('DB_PASSWORD'),
-        autoLoadEntities: true,
-        //Cuando hacemos algún cambio en las entidades aumaticamente las sincroniza
-        synchronize: true,
-      }),
+      useFactory: (config: ConfigService) => {
+        const nodeEnv = config.get<string>('NODE_ENV');
+        const isProduction = nodeEnv === 'production';
+
+        const dbPrefix = isProduction ? 'PROD_DB_' : 'DEV_DB_';
+
+        return {
+          ssl: isProduction,
+          type: 'postgres',
+          host: config.get<string>(`${dbPrefix}HOST`),
+          port: config.get<number>(`${dbPrefix}PORT`),
+          database: config.get<string>(`${dbPrefix}NAME`),
+          username: config.get<string>(`${dbPrefix}USERNAME`),
+          password: config.get<string>(`${dbPrefix}PASSWORD`),
+          autoLoadEntities: true,
+          // En producción no sincronizar automáticamente, en desarrollo sí
+          synchronize: !isProduction,
+          logging: !isProduction, // Solo logs en desarrollo
+        };
+      },
     }),
     AuthModule,
     UserModule,
