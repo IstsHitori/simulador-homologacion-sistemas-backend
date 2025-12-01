@@ -31,8 +31,7 @@ import { HomologationModule } from './homologation/homologation.module';
           username: config.get<string>(`${dbPrefix}USERNAME`),
           password: config.get<string>(`${dbPrefix}PASSWORD`),
           autoLoadEntities: true,
-          // En producción no sincronizar automáticamente, en desarrollo sí
-          synchronize: !isProduction,
+          synchronize: true,
           logging: !isProduction, // Solo logs en desarrollo
         };
       },
