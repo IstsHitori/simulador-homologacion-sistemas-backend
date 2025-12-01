@@ -44,16 +44,6 @@ export class UpdateStudentDataDto {
   cityResidence?: string;
 
   @IsOptional()
-  @IsString({ message: VALIDATION_MESSAGES.ADDRESS_STRING })
-  @Length(1, 20, { message: VALIDATION_MESSAGES.ADDRESS_LENGTH })
-  address?: string;
-
-  @IsOptional()
-  @IsString({ message: VALIDATION_MESSAGES.TELEPHONE_STRING })
-  @Length(1, 10, { message: VALIDATION_MESSAGES.TELEPHONE_LENGTH })
-  telephone?: string;
-
-  @IsOptional()
   @IsEnum(META_GENDERS, { message: VALIDATION_MESSAGES.GENDER_VALID })
   gender?: META_GENDERS;
 }

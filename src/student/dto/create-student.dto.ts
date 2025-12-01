@@ -43,16 +43,6 @@ export class CreateStudentDto {
   @Length(1, 20, { message: VALIDATION_MESSAGES.CITY_LENGTH })
   cityResidence: string;
 
-  @IsString({ message: VALIDATION_MESSAGES.ADDRESS_STRING })
-  @IsNotEmpty({ message: VALIDATION_MESSAGES.ADDRESS_REQUIRED })
-  @Length(1, 20, { message: VALIDATION_MESSAGES.ADDRESS_LENGTH })
-  address: string;
-
-  @IsString({ message: VALIDATION_MESSAGES.TELEPHONE_STRING })
-  @IsNotEmpty({ message: VALIDATION_MESSAGES.TELEPHONE_REQUIRED })
-  @Length(1, 10, { message: VALIDATION_MESSAGES.TELEPHONE_LENGTH })
-  telephone: string;
-
   @IsEnum(META_GENDERS, { message: VALIDATION_MESSAGES.GENDER_VALID })
   @IsNotEmpty({ message: VALIDATION_MESSAGES.GENDER_REQUIRED })
   gender: META_GENDERS;

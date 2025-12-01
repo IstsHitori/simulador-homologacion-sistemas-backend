@@ -117,8 +117,6 @@ export class StudentService {
       lastNames: student.lastNames,
       semester: student.semester,
       cityResidence: student.cityResidence,
-      address: student.address,
-      telephone: student.telephone,
       gender: student.gender,
       createdAt: student.createdAt,
       updatedAt: student.updatedAt,
@@ -243,7 +241,7 @@ export class StudentService {
 
   private formatStudentToResponse(student: Student) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, updatedAt, createdAt, address, ...restStudent } = student;
+    const { id, updatedAt, createdAt, ...restStudent } = student;
     return restStudent;
   }
 

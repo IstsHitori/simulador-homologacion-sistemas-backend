@@ -32,12 +32,6 @@ export class Student {
   @Column({ type: 'varchar', length: 20 })
   cityResidence: string;
 
-  @Column({ type: 'varchar', length: 20 })
-  address: string;
-
-  @Column({ type: 'varchar', length: 10 })
-  telephone: string;
-
   @Column({ type: 'enum', enum: META_GENDERS })
   gender: META_GENDERS;
 

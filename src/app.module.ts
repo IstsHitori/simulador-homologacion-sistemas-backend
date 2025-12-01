@@ -32,7 +32,6 @@ import { HomologationModule } from './homologation/homologation.module';
           password: config.get<string>(`${dbPrefix}PASSWORD`),
           autoLoadEntities: true,
           synchronize: true,
-          logging: !isProduction, // Solo logs en desarrollo
         };
       },
     }),

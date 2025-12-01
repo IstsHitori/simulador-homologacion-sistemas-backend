@@ -15,7 +15,6 @@ async function bootstrap() {
   app.enableCors({
     origin: config.get<string>('API_FRONTEND'),
   });
-  // app.useL
 
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(
