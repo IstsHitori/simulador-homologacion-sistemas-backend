@@ -7,11 +7,11 @@ export const ENV_VALIDATION_SCHEMA = joi.object({
     .default('development'),
   PORT: joi.number().default(3000),
   //DB_ENV - DEVELOPMENT
-  DEV_DB_PASSWORD: joi.string().required(),
-  DEV_DB_NAME: joi.string().required(),
-  DEV_DB_HOST: joi.string().required(),
+  DEV_DB_PASSWORD: joi.string().default('sistemas'),
+  DEV_DB_NAME: joi.string().default('homologacion-sistemas'),
+  DEV_DB_HOST: joi.string().default('localhost'),
   DEV_DB_PORT: joi.number().default(5432),
-  DEV_DB_USERNAME: joi.string().required(),
+  DEV_DB_USERNAME: joi.string().default('postgres'),
   //DB_ENV - PRODUCTION
   PROD_DB_PASSWORD: joi.string().required(),
   PROD_DB_NAME: joi.string().required(),
