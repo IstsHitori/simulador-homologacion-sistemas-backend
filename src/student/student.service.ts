@@ -201,7 +201,10 @@ export class StudentService {
   }: CreateStudentWithEnrollmentDto) {
     // Buscar estudiante por identificación
     const foundStudent = await this.studentRepository.findOne({
-      where: { identification: studentData.identification },
+      where: [
+        { identification: studentData.identification },
+        { email: studentData.email },
+      ],
       relations: [
         'studentApprovedSubject.approvedSubjectVersion',
         'studentApprovedSubject.approvedSubjectVersion.plan',
