@@ -214,10 +214,18 @@ export class StudentService {
 
     // Si no existe, crearlo
     if (!foundStudent) {
-      return await this.createStudentAndEnroll({
+      const result = await this.createStudentAndEnroll({
         studentData,
         approvedSubjects,
       });
+      // Excluir studentApprovedSubject de la respuesta pública
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { studentApprovedSubject, ...studentWithoutApproved } =
+        result.student;
+      return {
+        ...result,
+        student: studentWithoutApproved,
+      };
     }
 
     // Si existe, usar las materias aprobadas del estudiante existente
@@ -237,11 +245,22 @@ export class StudentService {
         approvedSubjectIds,
       );
 
-    const studentFormatted = this.mapStudent(foundStudent);
+    // Excluir studentApprovedSubject de la respuesta
+    const {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      id,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      updatedAt,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      createdAt,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      studentApprovedSubject,
+      ...studentForReport
+    } = foundStudent;
 
     return {
-      message: 'Reporte generado',
-      student: studentFormatted,
+      message: 'Reporte generado exitosamente',
+      student: studentForReport,
       subjectsToHomologate,
       subjectsToView,
     };
