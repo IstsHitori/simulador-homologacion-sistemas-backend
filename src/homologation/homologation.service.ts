@@ -70,4 +70,43 @@ export class HomologationService {
 
     return subjectsToHomologate;
   }
+
+  async calculateStudentSubjectToView(
+    approvedSubjects: ApprovedSubjecItemtDto[],
+  ): Promise<SubjectVersion[]> {
+    // 1. Obtener todas las materias homologables del estudiante
+    const subjectsToHomologate =
+      await this.calculateStudentSubjectToHomologate(approvedSubjects);
+
+    // 2. Buscar la versión del Plan Nuevo
+    const newPlan = await this.planRepository.findOne({
+      where: { name: META_PLANS.NEW_SUBJECT_PLAN },
+    });
+
+    if (!newPlan) {
+      throw new BadRequestException(
+        HOMOLOGATION_ERROR_MESSAGES.NEW_SUBJECT_PLAN_NOT_FOUND,
+      );
+    }
+
+    // 3. Obtener TODAS las materias del plan nuevo
+    const allNewSubjects = await this.subjectVersionRepository.find({
+      where: {
+        plan: { id: newPlan.id },
+      },
+      relations: ['area', 'plan'],
+    });
+
+    // 4. Extraer los IDs de las materias homologadas
+    const homologatedSubjectIds = new Set(
+      subjectsToHomologate.map(subject => subject.id),
+    );
+
+    // 5. Filtrar y devolver solo las materias que faltan (no están homologadas)
+    const subjectsToView = allNewSubjects.filter(
+      subject => !homologatedSubjectIds.has(subject.id),
+    );
+
+    return subjectsToView;
+  }
 }

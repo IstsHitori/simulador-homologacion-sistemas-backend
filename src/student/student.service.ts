@@ -92,16 +92,26 @@ export class StudentService {
     if (!foundStudent)
       throw new NotFoundException(STUDENT_ERROR_MESSAGES.STUDENT_NOT_FOUND);
 
-    const approvedSubjects = foundStudent.studentApprovedSubject.map(s => ({
+    //Ids de las materias que el estudiante aprobó
+    const approvedSubjectIds = foundStudent.studentApprovedSubject.map(s => ({
       approvedSubjectVersionId: s.approvedSubjectVersion.id,
     }));
 
-    const subjectsToHomologate =
-      await this.homologationService.calculateStudentSubjectToHomologate(
-        approvedSubjects,
+    //Materias faltantes por ver
+    const subjectsToView =
+      await this.homologationService.calculateStudentSubjectToView(
+        approvedSubjectIds,
       );
 
-    return { ...this.mapStudent(foundStudent), subjectsToHomologate };
+    //Materias homologadas
+    const subjectsToHomologate =
+      await this.homologationService.calculateStudentSubjectToHomologate(
+        approvedSubjectIds,
+      );
+
+    const studentFormatted = this.mapStudent(foundStudent);
+
+    return { ...studentFormatted, subjectsToHomologate, subjectsToView };
   }
 
   async getStudentReport(id: string) {
@@ -120,15 +130,6 @@ export class StudentService {
       gender: student.gender,
       createdAt: student.createdAt,
       updatedAt: student.updatedAt,
-      approvedSubjects: student.studentApprovedSubject.map(s => ({
-        id: s.approvedSubjectVersion.id,
-        name: s.approvedSubjectVersion.name,
-        code: s.approvedSubjectVersion.code,
-        semester: s.approvedSubjectVersion.semester,
-        credits: s.approvedSubjectVersion.credits,
-        plan: s.approvedSubjectVersion.plan,
-        area: s.approvedSubjectVersion.area,
-      })),
     };
   }
 
