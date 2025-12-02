@@ -126,6 +126,11 @@ export class StudentService {
     };
   }
 
+  async existStudent(id: string) {
+    const student = await this.studentRepository.findOne({ where: { id } });
+    return !!student;
+  }
+
   async getStudentReport(id: string) {
     return await this.findOne(id);
   }

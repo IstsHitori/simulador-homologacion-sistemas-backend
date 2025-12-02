@@ -23,6 +23,11 @@ export class StudentController {
     return this.studentService.generateStudentReport(createStudentDto);
   }
 
+  @Get('exist-student/:id')
+  existStudent(@Param('id', ParseUUIDPipe) id: string) {
+    return this.studentService.existStudent(id);
+  }
+
   @Post()
   @Auth(ROLE.ADMIN, ROLE.NORMAL)
   create(@Body() createStudentDto: CreateStudentWithEnrollmentDto) {
