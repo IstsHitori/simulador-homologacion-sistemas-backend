@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { UpdateStudentWithEnrollmentDto } from './dto/update-student-with-enrollment.dto';
-import { CreateStudentWithEnrollmentDto, SearchStudentDto } from './dto';
+import { CreateStudentWithEnrollmentDto } from './dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ROLE } from 'src/user/constants';
 
@@ -21,11 +21,6 @@ export class StudentController {
   @Post('report')
   generateReport(@Body() createStudentDto: CreateStudentWithEnrollmentDto) {
     return this.studentService.generateStudentReport(createStudentDto);
-  }
-
-  @Post('exist-student')
-  existStudent(@Body() searchStudentDto: SearchStudentDto) {
-    return this.studentService.existStudent(searchStudentDto);
   }
 
   @Post()
