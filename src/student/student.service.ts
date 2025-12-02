@@ -58,19 +58,17 @@ export class StudentService {
         await this.homologationService.calculateStudentSubjectToHomologate(
           approvedSubjects,
         );
-      //5- Para obtener la asignaturas que el estudiante ya cursó
-      const subjectjs =
-        await this.subjectVersionService.getSubjectVersionsByIds(
-          approvedSubjects.map(({ approvedSubjectVersionId }) =>
-            approvedSubjectVersionId.toString(),
-          ),
+      //5- Calculamos las materias que el estudiante debe ver
+      const subjectsToView =
+        await this.homologationService.calculateStudentSubjectToView(
+          approvedSubjects,
         );
 
       return {
         message: `Estudiante ${savedStudent.names} creado correctamente`,
         student: this.formatStudentToResponse(savedStudent),
         subjectsToHomologate,
-        approvedSubjects: subjectjs,
+        subjectsToView,
       };
     });
   }
@@ -169,18 +167,16 @@ export class StudentService {
           approvedSubjectsToUse,
         );
 
-      const approvedSubjects =
-        await this.subjectVersionService.getSubjectVersionsByIds(
-          approvedSubjectsToUse.map(({ approvedSubjectVersionId }) =>
-            approvedSubjectVersionId.toString(),
-          ),
+      const subjectsToView =
+        await this.homologationService.calculateStudentSubjectToView(
+          approvedSubjectsToUse,
         );
 
       return {
         message: `El estudiante ${foundStudent.names} ha sido actualizado`,
         student: this.formatStudentToResponse(foundStudent),
         subjectsToHomologate,
-        approvedSubjects,
+        subjectsToView,
       };
     });
   }
