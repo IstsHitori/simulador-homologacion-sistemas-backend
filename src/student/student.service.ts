@@ -214,7 +214,7 @@ export class StudentService {
 
     // Si no existe, crearlo
     if (!foundStudent) {
-      return this.createStudentAndEnroll({
+      return await this.createStudentAndEnroll({
         studentData,
         approvedSubjects,
       });
