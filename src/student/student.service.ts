@@ -14,7 +14,6 @@ import { StudentApprovedSubjectService } from 'src/enrollment/services/student-a
 import { STUDENT_ERROR_MESSAGES } from './constants/error-messages';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HomologationService } from 'src/homologation/homologation.service';
-import { SubjectVersionService } from 'src/curriculum/services/subject-version.service';
 @Injectable()
 export class StudentService {
   constructor(
@@ -23,7 +22,6 @@ export class StudentService {
     private readonly dataSource: DataSource,
     private readonly studentApprovedSubjectService: StudentApprovedSubjectService,
     private readonly homologationService: HomologationService,
-    private readonly subjectVersionService: SubjectVersionService,
   ) {}
 
   async createStudentAndEnroll({

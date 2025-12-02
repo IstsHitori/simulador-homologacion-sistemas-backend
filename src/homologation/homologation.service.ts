@@ -68,7 +68,8 @@ export class HomologationService {
       relations: ['area', 'plan'],
     });
 
-    return subjectsToHomologate;
+    // 6. Ordenar por semestre de mayor a menor (descendente)
+    return subjectsToHomologate.sort((a, b) => b.semester - a.semester);
   }
 
   async calculateStudentSubjectToView(
@@ -103,9 +104,10 @@ export class HomologationService {
     );
 
     // 5. Filtrar y devolver solo las materias que faltan (no están homologadas)
-    const subjectsToView = allNewSubjects.filter(
-      subject => !homologatedSubjectIds.has(subject.id),
-    );
+    const subjectsToView = allNewSubjects
+      .filter(subject => !homologatedSubjectIds.has(subject.id))
+      // 6. Ordenar por semestre de mayor a menor (descendente)
+      .sort((a, b) => b.semester - a.semester);
 
     return subjectsToView;
   }
