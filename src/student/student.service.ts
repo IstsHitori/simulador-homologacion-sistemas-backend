@@ -195,6 +195,65 @@ export class StudentService {
     });
   }
 
+  async generateStudentReport({
+    studentData,
+    approvedSubjects,
+  }: CreateStudentWithEnrollmentDto) {
+    // Buscar estudiante por identificación
+    const foundStudent = await this.studentRepository.findOne({
+      where: { identification: studentData.identification },
+      relations: [
+        'studentApprovedSubject.approvedSubjectVersion',
+        'studentApprovedSubject.approvedSubjectVersion.plan',
+        'studentApprovedSubject.approvedSubjectVersion.area',
+      ],
+    });
+
+    // Si no existe, crearlo
+    if (!foundStudent) {
+      return this.createStudentAndEnroll({
+        studentData,
+        approvedSubjects,
+      });
+    }
+
+    // Si existe, usar las materias aprobadas del estudiante existente
+    const approvedSubjectIds = foundStudent.studentApprovedSubject.map(s => ({
+      approvedSubjectVersionId: s.approvedSubjectVersion.id,
+    }));
+
+    // Materias faltantes por ver
+    const subjectsToView =
+      await this.homologationService.calculateStudentSubjectToView(
+        approvedSubjectIds,
+      );
+
+    // Materias homologadas
+    const subjectsToHomologate =
+      await this.homologationService.calculateStudentSubjectToHomologate(
+        approvedSubjectIds,
+      );
+
+    const studentFormatted = this.mapStudent(foundStudent);
+
+    return {
+      message: 'Reporte generado',
+      student: studentFormatted,
+      subjectsToHomologate,
+      subjectsToView,
+    };
+  }
+
+  async remove(id: string) {
+    const foundStudent = await this.studentRepository.findOne({
+      where: { id },
+    });
+    if (!foundStudent)
+      throw new NotFoundException(STUDENT_ERROR_MESSAGES.STUDENT_NOT_FOUND);
+    await this.studentRepository.remove(foundStudent);
+    return `El estudiante ${foundStudent.names} ha sido eliminado correctamente`;
+  }
+
   private async getApprovedSubjectsForUpdate(
     updateStudentDto: UpdateStudentWithEnrollmentDto,
     studentId: string,
@@ -254,64 +313,5 @@ export class StudentService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, updatedAt, createdAt, ...restStudent } = student;
     return restStudent;
-  }
-
-  async generateStudentReport({
-    studentData,
-    approvedSubjects,
-  }: CreateStudentWithEnrollmentDto) {
-    // Buscar estudiante por identificación
-    const foundStudent = await this.studentRepository.findOne({
-      where: { identification: studentData.identification },
-      relations: [
-        'studentApprovedSubject.approvedSubjectVersion',
-        'studentApprovedSubject.approvedSubjectVersion.plan',
-        'studentApprovedSubject.approvedSubjectVersion.area',
-      ],
-    });
-
-    // Si no existe, crearlo
-    if (!foundStudent) {
-      return this.createStudentAndEnroll({
-        studentData,
-        approvedSubjects,
-      });
-    }
-
-    // Si existe, usar las materias aprobadas del estudiante existente
-    const approvedSubjectIds = foundStudent.studentApprovedSubject.map(s => ({
-      approvedSubjectVersionId: s.approvedSubjectVersion.id,
-    }));
-
-    // Materias faltantes por ver
-    const subjectsToView =
-      await this.homologationService.calculateStudentSubjectToView(
-        approvedSubjectIds,
-      );
-
-    // Materias homologadas
-    const subjectsToHomologate =
-      await this.homologationService.calculateStudentSubjectToHomologate(
-        approvedSubjectIds,
-      );
-
-    const studentFormatted = this.mapStudent(foundStudent);
-
-    return {
-      message: 'Reporte generado',
-      student: studentFormatted,
-      subjectsToHomologate,
-      subjectsToView,
-    };
-  }
-
-  async remove(id: string) {
-    const foundStudent = await this.studentRepository.findOne({
-      where: { id },
-    });
-    if (!foundStudent)
-      throw new NotFoundException(STUDENT_ERROR_MESSAGES.STUDENT_NOT_FOUND);
-    await this.studentRepository.remove(foundStudent);
-    return `El estudiante ${foundStudent.names} ha sido eliminado correctamente`;
   }
 }
