@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import {
   CreateStudentWithEnrollmentDto,
+  SearchStudentDto,
   UpdateStudentWithEnrollmentDto,
 } from './dto';
 import { DataSource, EntityManager, Repository } from 'typeorm';
@@ -126,8 +127,10 @@ export class StudentService {
     };
   }
 
-  async existStudent(id: string) {
-    const student = await this.studentRepository.findOne({ where: { id } });
+  async existStudent({ identification }: SearchStudentDto) {
+    const student = await this.studentRepository.findOne({
+      where: { identification },
+    });
     return !!student;
   }
 
