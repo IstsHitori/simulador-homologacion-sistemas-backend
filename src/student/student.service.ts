@@ -107,7 +107,23 @@ export class StudentService {
 
     const studentFormatted = this.mapStudent(foundStudent);
 
-    return { ...studentFormatted, subjectsToHomologate, subjectsToView };
+    // Obtener las materias aprobadas con sus detalles completos
+    const approvedSubjects = foundStudent.studentApprovedSubject.map(s => ({
+      id: s.approvedSubjectVersion.id,
+      name: s.approvedSubjectVersion.name,
+      code: s.approvedSubjectVersion.code,
+      semester: s.approvedSubjectVersion.semester,
+      credits: s.approvedSubjectVersion.credits,
+      plan: s.approvedSubjectVersion.plan,
+      area: s.approvedSubjectVersion.area,
+    }));
+
+    return {
+      ...studentFormatted,
+      approvedSubjects,
+      subjectsToHomologate,
+      subjectsToView,
+    };
   }
 
   async getStudentReport(id: string) {
