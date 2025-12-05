@@ -60,6 +60,7 @@ export class StudentService {
       const subjectsToView =
         await this.homologationService.calculateStudentSubjectToView(
           approvedSubjects,
+          savedStudent.semester,
         );
 
       return {
@@ -97,6 +98,7 @@ export class StudentService {
     const subjectsToView =
       await this.homologationService.calculateStudentSubjectToView(
         approvedSubjectIds,
+        foundStudent.semester,
       );
 
     //Materias homologadas
@@ -167,6 +169,14 @@ export class StudentService {
         await studentRepository.update(id, updateStudentDto.studentData);
       }
 
+      // Obtener el estudiante actualizado para tener el semestre correcto
+      const updatedStudent = await studentRepository.findOne({
+        where: { id },
+      });
+
+      if (!updatedStudent)
+        throw new NotFoundException(STUDENT_ERROR_MESSAGES.STUDENT_NOT_FOUND);
+
       // Obtener materias a procesar
       const approvedSubjectsToUse = await this.getApprovedSubjectsForUpdate(
         updateStudentDto,
@@ -184,11 +194,12 @@ export class StudentService {
       const subjectsToView =
         await this.homologationService.calculateStudentSubjectToView(
           approvedSubjectsToUse,
+          updatedStudent.semester,
         );
 
       return {
-        message: `El estudiante ${foundStudent.names} ha sido actualizado`,
-        student: this.formatStudentToResponse(foundStudent),
+        message: `El estudiante ${updatedStudent.names} ha sido actualizado`,
+        student: this.formatStudentToResponse(updatedStudent),
         subjectsToHomologate,
         subjectsToView,
       };
@@ -237,6 +248,7 @@ export class StudentService {
     const subjectsToView =
       await this.homologationService.calculateStudentSubjectToView(
         approvedSubjectIds,
+        foundStudent.semester,
       );
 
     // Materias homologadas

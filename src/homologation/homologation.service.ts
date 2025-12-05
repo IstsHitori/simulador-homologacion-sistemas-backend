@@ -74,12 +74,24 @@ export class HomologationService {
 
   async calculateStudentSubjectToView(
     approvedSubjects: ApprovedSubjecItemtDto[],
+    studentSemester: number,
   ): Promise<SubjectVersion[]> {
     // 1. Obtener todas las materias homologables del estudiante
     const subjectsToHomologate =
       await this.calculateStudentSubjectToHomologate(approvedSubjects);
 
-    // 2. Buscar la versión del Plan Nuevo
+    // 2. Buscar la versión del Plan Viejo
+    const oldPlan = await this.planRepository.findOne({
+      where: { name: META_PLANS.OLD_SUBJECT_PLAN },
+    });
+
+    if (!oldPlan) {
+      throw new BadRequestException(
+        HOMOLOGATION_ERROR_MESSAGES.NEW_SUBJECT_PLAN_NOT_FOUND,
+      );
+    }
+
+    // 3. Buscar la versión del Plan Nuevo
     const newPlan = await this.planRepository.findOne({
       where: { name: META_PLANS.NEW_SUBJECT_PLAN },
     });
@@ -90,25 +102,66 @@ export class HomologationService {
       );
     }
 
-    // 3. Obtener TODAS las materias del plan nuevo
-    const allNewSubjects = await this.subjectVersionRepository.find({
+    // 4. Obtener los IDs de las materias aprobadas del plan viejo
+    const approvedOldSubjectIds = approvedSubjects.map(
+      subj => subj.approvedSubjectVersionId,
+    );
+
+    // 5. Generar array de semestres desde 1 hasta el semestre actual del estudiante
+    const semestersToConsider = Array.from(
+      { length: studentSemester },
+      (_, i) => i + 1,
+    );
+
+    // 6. Obtener TODAS las materias del plan viejo hasta el semestre actual del estudiante
+    const allOldSubjectsUpToSemester = await this.subjectVersionRepository.find(
+      {
+        where: {
+          plan: { id: oldPlan.id },
+          semester: In(semestersToConsider),
+        },
+        relations: ['area', 'plan'],
+      },
+    );
+
+    // 7. Identificar las materias del plan viejo que NO aprobó hasta su semestre actual
+    const approvedOldSubjectIdsSet = new Set(approvedOldSubjectIds);
+    const notApprovedOldSubjects = allOldSubjectsUpToSemester.filter(
+      subject => !approvedOldSubjectIdsSet.has(subject.id),
+    );
+
+    // 8. Si no hay materias no aprobadas, retornar array vacío
+    if (notApprovedOldSubjects.length === 0) {
+      return [];
+    }
+
+    // 9. Para cada materia no aprobada, buscar su equivalente en el plan nuevo
+    const equivalencesForNotApproved = await this.equivalenceRepository.find({
       where: {
+        oldSubjectVersionId: In(notApprovedOldSubjects.map(s => s.id)),
+      },
+    });
+
+    // 10. Obtener los IDs de las materias nuevas que equivalen a las no aprobadas
+    const newSubjectsToViewIds = [
+      ...new Set(equivalencesForNotApproved.map(eq => eq.newSubjectVersionId)),
+    ];
+
+    // 11. Si no hay equivalencias, retornar array vacío
+    if (newSubjectsToViewIds.length === 0) {
+      return [];
+    }
+
+    // 12. Obtener las materias nuevas que debe ver
+    const subjectsToView = await this.subjectVersionRepository.find({
+      where: {
+        id: In(newSubjectsToViewIds),
         plan: { id: newPlan.id },
       },
       relations: ['area', 'plan'],
     });
 
-    // 4. Extraer los IDs de las materias homologadas
-    const homologatedSubjectIds = new Set(
-      subjectsToHomologate.map(subject => subject.id),
-    );
-
-    // 5. Filtrar y devolver solo las materias que faltan (no están homologadas)
-    const subjectsToView = allNewSubjects
-      .filter(subject => !homologatedSubjectIds.has(subject.id))
-      // 6. Ordenar por semestre de mayor a menor (descendente)
-      .sort((a, b) => b.semester - a.semester);
-
-    return subjectsToView;
+    // 13. Ordenar por semestre de menor a mayor (ascendente) para mostrar primero las del semestre actual
+    return subjectsToView.sort((a, b) => a.semester - b.semester);
   }
 }
